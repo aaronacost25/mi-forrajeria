@@ -1,0 +1,9 @@
+<h1>✅ Pago aprobado correctamente</h1>
+
+<h3>Resumen de compra</h3>
+
+{% for item in items %}
+<p>{{ item.producto.nombre }} x{{ item.cantidad }}</p>
+{% endfor %}
+
+<p>Total: ${{ total }}</p>

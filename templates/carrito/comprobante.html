@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprobante</title>
+
+    <style>
+        body{
+            font-family:Arial;
+            background:#f4f6f8;
+            padding:30px;
+        }
+
+        .factura{
+            max-width:800px;
+            margin:auto;
+            background:white;
+            padding:30px;
+            border-radius:18px;
+            box-shadow:0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        h1{
+            color:#3483fa;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+        }
+
+        th, td{
+            padding:12px;
+            border-bottom:1px solid #ddd;
+            text-align:left;
+        }
+
+        .total{
+            font-size:28px;
+            color:green;
+            font-weight:bold;
+            margin-top:20px;
+        }
+
+        .btn{
+            display:inline-block;
+            margin-top:20px;
+            padding:12px 20px;
+            border-radius:10px;
+            text-decoration:none;
+            color:white;
+            font-weight:bold;
+        }
+
+        .whatsapp{
+            background:#25D366;
+        }
+    </style>
+</head>
+<body>
+
+<div class="factura">
+
+    <h1>🧾 Comprobante de compra</h1>
+
+    <p><strong>Número:</strong> {{ venta.id }}</p>
+    <p><strong>Fecha:</strong> {{ venta.fecha }}</p>
+
+    <table>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+        </tr>
+
+        {% for detalle in detalles %}
+        <tr>
+            <td>{{ detalle.producto.nombre }}</td>
+            <td>{{ detalle.cantidad }}</td>
+            <td>${{ detalle.subtotal }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p class="total">Total: ${{ venta.total }}</p>
+
+    <a href="https://wa.me/5493541620247?text=🛒 Compra N°{{ venta.id }} - Total ${{ venta.total }}"
+       target="_blank"
+       class="btn whatsapp">
+       📲 Avisar por WhatsApp
+    </a>
+
+</div>
+
+</body>
+</html>

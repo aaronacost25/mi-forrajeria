@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Forrajería</title>
+
+   <style>
+body{
+    font-family: Arial, sans-serif;
+    background:linear-gradient(135deg,#f7f9fc,#eef3f9);
+    margin:0;
+}
+
+header{
+    background:white;
+    padding:18px 35px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
+    position:sticky;
+    top:0;
+    z-index:1000;
+}
+
+.contenedor-principal{
+    display:flex;
+    gap:30px;
+    padding:20px;
+}
+
+.sidebar{
+    width:260px;
+    background:white;
+    padding:20px;
+    height:fit-content;
+    border-radius:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.sidebar a{
+    display:block;
+    padding:8px 10px;
+    margin-bottom:5px;
+    text-decoration:none;
+    color:#555;
+    border-radius:8px;
+    transition:0.3s;
+}
+
+.sidebar a:hover{
+    background:#f0f6ff;
+    color:#3483fa;
+}
+
+.contenedor{
+    flex:1;
+    display:grid;
+    grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+    gap:22px;
+}
+
+.card{
+    background:white;
+    border-radius:22px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    padding:18px;
+    text-align:center;
+    transition:0.35s;
+    overflow:hidden;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 15px 30px rgba(0,0,0,0.14);
+}
+
+.card img{
+    width:210px;
+    height:210px;
+    object-fit:cover;
+    border-radius:16px;
+}
+
+.precio{
+    font-size:28px;
+    font-weight:bold;
+    color:#16a34a;
+}
+
+.btn{
+    display:inline-block;
+    margin-top:10px;
+    background:#3483fa;
+    color:white;
+    padding:12px 20px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.btn:hover{
+    transform:scale(1.03);
+}
+
+input{
+    outline:none;
+}
+@media(max-width:900px){
+
+    .contenedor-principal{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+    }
+
+    header{
+        flex-direction:column;
+        gap:15px;
+    }
+
+    #buscador{
+        width:100% !important;
+    }
+    .slider{
+    width:95%;
+    height:300px;
+    margin:25px auto;
+    overflow:hidden;
+    border-radius:25px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+    position:relative;
+}
+
+.slides{
+    display:flex;
+    width:300%;
+    animation: slide 12s infinite;
+}
+
+.slides img{
+    width:100%;
+    height:300px;
+    object-fit:cover;
+}
+
+@keyframes slide{
+    0%{transform:translateX(0);}
+    33%{transform:translateX(0);}
+    38%{transform:translateX(-100%);}
+    66%{transform:translateX(-100%);}
+    71%{transform:translateX(-200%);}
+    100%{transform:translateX(-200%);}
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<a href="/productos/" style="
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+">
+
+    <img src="/media/productos/logo.png" alt="Logo" style="
+        width:65px;
+        height:65px;
+        border-radius:16px;
+        object-fit:cover;
+        box-shadow:0 4px 10px rgba(0,0,0,0.12);
+    ">
+
+    <div>
+        <h2 style="color:#3483fa; margin:0;">Forrajería</h2>
+        <p style="margin:0; font-size:13px; color:#666;">
+            Todo para tus mascotas
+        </p>
+    </div>
+
+</a>
+</div>
+    <div style="position:relative;">
+
+        <input type="text"
+               id="buscador"
+               placeholder="Buscar productos..."
+               style="
+                    padding:13px;
+                    width:370px;
+                    border-radius:12px;
+                    border:1px solid #ddd;
+                    font-size:15px;
+               ">
+
+        <div id="resultados" style="
+            position:absolute;
+            background:white;
+            width:100%;
+            box-shadow:0 4px 12px rgba(0,0,0,0.15);
+            border-radius:10px;
+            margin-top:5px;
+            z-index:999;
+        "></div>
+
+    </div>
+
+    <a href="/carrito/" style="
+    text-decoration:none;
+    background:#25D366;
+    color:white;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:bold;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+">
+    🛒 Carrito ({{ carrito_count|default:0 }})
+</a>
+
+</header>
+
+<div class="slider">
+
+    <div class="slides">
+
+        <img src="/media/productos/banner1.jpg">
+        <img src="/media/productos/banner2.jpg">
+        <img src="/media/productos/banner3.jpg">
+
+    </div>
+
+</div>
+<h2 style="padding:20px;">⭐ Productos destacados</h2>
+
+<div style="
+    display:flex;
+    gap:20px;
+    overflow-x:auto;
+    padding:20px;
+    scroll-behavior:smooth;
+">
+    {% for producto in destacados %}
+    <div class="card">
+
+        <img src="{{ producto.imagen.url }}" alt="">
+        <h3>{{ producto.nombre }}</h3>
+        <p style="color:#888; margin:4px 0;">
+    Producto disponible
+</p>
+        <p class="precio">${{ producto.precio }}</p>
+
+    </div>
+    {% endfor %}
+</div>
+
+<div class="contenedor-principal">
+
+<div class="sidebar">
+
+    <h3 style="margin-bottom:20px;color:#3483fa;border-bottom:2px solid #eee;padding-bottom:10px;">
+        📂 Categorías
+    </h3>
+
+    {% for categoria in categorias %}
+        <div style="margin-bottom:18px;">
+
+            <h4 style="margin:0 0 10px 0;color:#333;font-size:16px;">
+                {{ categoria.nombre }}
+            </h4>
+
+            {% for sub in categoria.subcategoria_set.all %}
+                <a href="{% url 'filtrar_subcategoria' sub.id %}" style="
+                    display:block;
+                    padding:8px 10px;
+                    margin-bottom:5px;
+                    text-decoration:none;
+                    color:#555;
+                    border-radius:8px;
+                ">
+                    🔹 {{ sub.nombre }}
+                </a>
+            {% endfor %}
+
+        </div>
+    {% endfor %}
+
+</div>
+
+<div class="contenedor">
+    {% for producto in productos %}
+    <div class="card">
+
+        <div style="
+            background:#ff4d4d;
+            color:white;
+            padding:5px 10px;
+            border-radius:8px;
+            font-size:12px;
+            display:inline-block;
+            margin-bottom:10px;
+        ">
+            OFERTA
+        </div>
+
+        <img src="{{ producto.imagen.url }}" alt="">
+
+        <h3>{{ producto.nombre }}</h3>
+
+        <p style="color:#777; font-size:14px;">
+            {{ producto.descripcion|truncatechars:45 }}
+        </p>
+
+        <p class="precio">${{ producto.precio }}</p>
+
+        {% if producto.stock > 0 %}
+            <p style="color:green;">Stock: {{ producto.stock }}</p>
+        {% else %}
+            <p style="color:red;">Sin stock</p>
+        {% endif %}
+
+        <a class="btn" href="{% url 'agregar_carrito' producto.id %}">
+            Agregar al carrito
+        </a>
+
+        <br>
+
+        <a class="btn"
+           href="https://wa.me/5493541620247?text=Hola, quiero comprar {{ producto.nombre }}"
+           target="_blank"
+           style="background:#25D366;">
+           Comprar ahora
+        </a>
+
+    </div>
+    {% endfor %}
+</div>
+
+</div>
+
+<a href="https://wa.me/5493541620247?text=Hola, quiero consultar por productos"
+   target="_blank"
+   style="
+        position:fixed;
+        bottom:20px;
+        right:20px;
+        background:#25D366;
+        color:white;
+        padding:15px 18px;
+        border-radius:50%;
+        font-size:24px;
+        text-decoration:none;
+        box-shadow:0 4px 10px rgba(0,0,0,0.3);
+   ">
+   📲
+</a>
+
+<script>
+document.getElementById('buscador').addEventListener('keyup', function(){
+
+    let query = this.value;
+    let resultados = document.getElementById('resultados');
+
+    if(query.length < 1){
+        resultados.innerHTML = '';
+        return;
+    }
+
+    fetch(`/productos/buscar-ajax/?term=${query}`)
+    .then(response => response.json())
+    .then(data => {
+
+        resultados.innerHTML = '';
+
+        data.forEach(producto => {
+            resultados.innerHTML += `
+                <a href="/productos/producto/${producto.id}" style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                    padding:10px;
+                    text-decoration:none;
+                    color:black;
+                    border-bottom:1px solid #eee;
+                ">
+                    <img src="${producto.imagen}" width="50" height="50"
+                         style="border-radius:8px; object-fit:cover;">
+
+                    <div>
+                        <div>${producto.nombre}</div>
+                        <div style="color:green; font-weight:bold;">
+                            $${producto.precio}
+                        </div>
+                    </div>
+                </a>
+            `;
+        });
+
+    });
+
+});
+</script>
+
+<footer style="
+    margin-top:50px;
+    background:#222;
+    color:white;
+    padding:30px;
+    text-align:center;
+">
+    <h3>🐾 Forrajería</h3>
+    <p>Todo para tus mascotas al mejor precio</p>
+    <p>📍 Córdoba - Argentina</p>
+    <p>📲 WhatsApp: 3541 620247</p>
+</footer>
+
+</body>
+</html>

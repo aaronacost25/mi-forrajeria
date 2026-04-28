@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carrito</title>
+
+    <style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f8;
+    margin:0;
+    padding:30px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:18px;
+    box-shadow:0 6px 15px rgba(0,0,0,0.08);
+}
+
+.producto-carrito{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+}
+
+.info-producto{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.info-producto img{
+    width:100px;
+    height:100px;
+    object-fit:cover;
+    border-radius:12px;
+}
+
+.acciones{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.acciones button{
+    border:none;
+    padding:10px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:18px;
+    background:#eee;
+}
+
+.acciones button:hover{
+    background:#ddd;
+}
+
+.btn{
+    display:inline-block;
+    padding:12px 20px;
+    border-radius:10px;
+    text-decoration:none;
+    color:white;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.btn-whatsapp{
+    background:#25D366;
+}
+
+.btn-pago{
+    background:#3483fa;
+}
+
+.total-box{
+    background:linear-gradient(135deg,#3483fa,#00c6ff);
+    color:white;
+    text-align:center;
+}
+
+.total{
+    font-size:30px;
+    font-weight:bold;
+    color:white;
+}
+
+select{
+    width:100%;
+    max-width:400px;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🛒 Carrito de compras</h1>
+<p>Cantidad de productos: <span id="cantidad_total">{{ items|length }}</span></p>
+
+<div id="lista_productos">
+
+{% for item in items %}
+<div class="card" id="producto-{{ item.id }}">
+
+    <div class="producto-carrito">
+
+        <div class="info-producto">
+
+            <img src="{{ item.producto.imagen.url }}">
+
+            <div>
+                <h3>{{ item.producto.nombre }}</h3>
+
+                <p id="cantidad-{{ item.id }}">
+                    Cantidad: {{ item.cantidad }}
+                </p>
+
+                <p style="color:green; font-weight:bold;" id="subtotal-{{ item.id }}">
+                    ${{ item.subtotal }}
+                </p>
+            </div>
+
+        </div>
+
+        <div class="acciones">
+            <button onclick="actualizarCantidad({{ item.id }}, 'sumar')">➕</button>
+            <button onclick="actualizarCantidad({{ item.id }}, 'restar')">➖</button>
+            <button onclick="actualizarCantidad({{ item.id }}, 'eliminar')">❌</button>
+        </div>
+
+    </div>
+
+</div>
+{% endfor %}
+
+</div>
+
+<p id="carrito_vacio" style="display:none; font-size:22px; color:#777; text-align:center;">
+    🛒 Tu carrito está vacío
+</p>
+
+<div style="display:flex; gap:15px; margin-bottom:20px;">
+
+    <a href="/productos/" style="background:#3483fa;color:white;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:bold;">
+        ⬅ Seguir comprando
+    </a>
+
+    <a href="{% url 'vaciar_carrito' %}" style="background:#ff4d4d;color:white;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:bold;">
+        🗑 Vaciar carrito
+    </a>
+
+</div>
+
+<div class="card">
+    <h3>🚚 Entrega</h3>
+
+    <label>Método de entrega:</label>
+    <select id="metodo_entrega" onchange="cambiarOpciones()">
+        <option value="local">Retirar en local</option>
+        <option value="envio">Envío a domicilio</option>
+    </select>
+
+    <br><br>
+
+    <label id="label_opciones">Sucursal:</label>
+    <select id="opciones" onchange="calcularEnvio()"></select>
+
+    <p id="envio_monto">🚚 Envío: $0</p>
+</div>
+
+<div class="card">
+    <h3>💳 Método de pago</h3>
+
+    <select id="metodo_pago" onchange="mostrarPago()">
+        <option value="mercadopago">Débito / Crédito</option>
+        <option value="transferencia">Transferencia</option>
+        <option value="efectivo">Efectivo</option>
+    </select>
+
+    <div id="info_pago" style="margin-top:15px;"></div>
+</div>
+
+<div class="card total-box">
+
+    <p>Total productos: ${{ total }}</p>
+
+    <p class="total" id="total_final">
+        Total final: ${{ total }}
+    </p>
+
+    <div id="boton_whatsapp"></div>
+
+</div>
+
+</div>
+
+<script>
+let envio = 0;
+
+function cambiarOpciones(){
+    let metodo = document.getElementById("metodo_entrega").value;
+    let opciones = document.getElementById("opciones");
+    let label = document.getElementById("label_opciones");
+
+    opciones.innerHTML = "";
+
+    if(metodo === "local"){
+        label.innerHTML = "Sucursal:";
+        opciones.innerHTML += `<option value="Mayu Sumaj">Mayu Sumaj</option>`;
+        opciones.innerHTML += `<option value="Icho Cruz">Icho Cruz</option>`;
+        envio = 0;
+    }
+
+    if(metodo === "envio"){
+        label.innerHTML = "Localidad:";
+        opciones.innerHTML += `<option value="Villa Carlos Paz">Villa Carlos Paz</option>`;
+        opciones.innerHTML += `<option value="Mayu Sumaj">Mayu Sumaj</option>`;
+        opciones.innerHTML += `<option value="San Antonio de Arredondo">San Antonio de Arredondo</option>`;
+        opciones.innerHTML += `<option value="Cuesta Blanca">Cuesta Blanca</option>`;
+        opciones.innerHTML += `<option value="Icho Cruz">Icho Cruz</option>`;
+    }
+
+    calcularEnvio();
+}
+
+function calcularEnvio(){
+    let metodo = document.getElementById("metodo_entrega").value;
+    let lugar = document.getElementById("opciones").value;
+
+    envio = 0;
+
+    if(metodo === "envio"){
+        if(lugar==="Villa Carlos Paz") envio=2000;
+        if(lugar==="Mayu Sumaj") envio=1000;
+        if(lugar==="San Antonio de Arredondo") envio=1500;
+        if(lugar==="Cuesta Blanca") envio=1800;
+        if(lugar==="Icho Cruz") envio=2000;
+    }
+
+    document.getElementById("envio_monto").innerHTML = "🚚 Envío: $" + envio;
+
+    let total = parseFloat("{{ total }}");
+    document.getElementById("total_final").innerHTML =
+        "Total final: $" + (total + envio);
+}
+
+function actualizarCantidad(id, accion){
+
+    fetch(`/carrito/${accion}/${id}/`)
+    .then(response => response.json())
+    .then(data => {
+
+        if(accion === 'eliminar'){
+            document.getElementById(`producto-${id}`).remove();
+        }else{
+            document.getElementById(`cantidad-${id}`).innerHTML =
+                `Cantidad: ${data.cantidad}`;
+
+            document.getElementById(`subtotal-${id}`).innerHTML =
+                `$${data.subtotal}`;
+        }
+
+        document.getElementById("cantidad_total").innerHTML = data.total_quantity;
+        document.getElementById("total_final").innerHTML =
+            `Total final: $${data.total}`;
+
+        let productos = document.querySelectorAll('[id^="producto-"]').length;
+
+        if(productos === 0){
+            document.getElementById("carrito_vacio").style.display = "block";
+            document.querySelector(".total-box").style.display = "none";
+        }
+
+    });
+
+}
+function mostrarPago(){
+
+    let pago = document.getElementById("metodo_pago").value;
+    let info = document.getElementById("info_pago");
+    let boton = document.getElementById("boton_whatsapp");
+
+    info.innerHTML = "";
+    boton.innerHTML = "";
+
+    if(pago === "mercadopago"){
+        info.innerHTML = `
+            <form method="GET" action="{% url 'pagar' %}">
+                <input type="hidden" name="metodo_entrega" value="${document.getElementById('metodo_entrega').value}">
+                <input type="hidden" name="direccion" value="${document.getElementById('opciones').value}">
+                <input type="hidden" name="envio" value="${envio}">
+
+                <button class="btn btn-pago" type="submit" style="width:100%; margin-top:10px;">
+                    💳 Terminar compra
+                </button>
+            </form>
+        `;
+    }
+
+    if(pago === "transferencia"){
+        info.innerHTML = `
+            <p><strong>Alias:</strong> <span id="alias_texto">TU.ALIAS.AQUI</span></p>
+
+            <button class="btn btn-whatsapp" onclick="copiarAlias()">
+                Copiar alias
+            </button>
+        `;
+
+        boton.innerHTML = `
+            <button class="btn btn-whatsapp" onclick="enviarWhatsApp()">
+                📲 Enviar comprobante por WhatsApp
+            </button>
+        `;
+    }
+
+    if(pago === "efectivo"){
+        info.innerHTML = `
+            <p>💵 Pago en efectivo al retirar o recibir el pedido</p>
+        `;
+
+        boton.innerHTML = `
+            <button class="btn btn-whatsapp" onclick="enviarWhatsApp()">
+                📍 Confirmar pedido por WhatsApp
+            </button>
+        `;
+    }
+}
+function copiarAlias(){
+
+    let alias = document.getElementById("alias_texto").innerText;
+
+    navigator.clipboard.writeText(alias);
+
+    alert("Alias copiado");
+}
+
+cambiarOpciones();
+mostrarPago();
+</script>
+
+</body>
+</html>

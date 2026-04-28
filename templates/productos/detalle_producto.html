@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ producto.nombre }}</title>
+
+    <style>
+        body{
+            font-family:Arial;
+            background:#f5f5f5;
+            margin:0;
+            padding:30px;
+        }
+
+        .contenedor{
+            max-width:1000px;
+            margin:auto;
+            background:white;
+            border-radius:20px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.1);
+            display:flex;
+            gap:40px;
+            padding:30px;
+        }
+
+        .imagen img{
+            width:400px;
+            height:400px;
+            object-fit:cover;
+            border-radius:15px;
+        }
+
+        .info{
+            flex:1;
+        }
+
+        .precio{
+            font-size:35px;
+            color:green;
+            font-weight:bold;
+        }
+
+        .btn{
+            display:inline-block;
+            margin-top:20px;
+            padding:15px 25px;
+            border-radius:10px;
+            text-decoration:none;
+            color:white;
+            font-weight:bold;
+        }
+
+        .carrito{
+            background:#3483fa;
+        }
+
+        .whatsapp{
+            background:#25D366;
+        }
+
+        .stock{
+            margin-top:15px;
+            font-size:18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="contenedor">
+
+    <div class="imagen">
+        <img src="{{ producto.imagen.url }}">
+    </div>
+
+    <div class="info">
+
+        <h1>{{ producto.nombre }}</h1>
+
+        <p>{{ producto.descripcion }}</p>
+
+        <p class="precio">${{ producto.precio }}</p>
+
+        {% if producto.stock > 0 %}
+            <p class="stock" style="color:green;">✅ Stock disponible: {{ producto.stock }}</p>
+        {% else %}
+            <p class="stock" style="color:red;">❌ Sin stock</p>
+        {% endif %}
+
+        <a class="btn carrito" href="{% url 'agregar_carrito' producto.id %}">
+            🛒 Agregar al carrito
+        </a>
+
+        <a class="btn whatsapp"
+           href="https://wa.me/5493541620247?text=Hola, quiero comprar {{ producto.nombre }}"
+           target="_blank">
+           📲 Comprar por WhatsApp
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

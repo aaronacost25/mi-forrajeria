@@ -1,0 +1,1 @@
+web: gunicorn forrajeria_web.wsgi

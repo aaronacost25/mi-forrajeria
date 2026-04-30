@@ -6,11 +6,18 @@ from .models import Producto, Categoria
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
 def crear_admin(request):
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@gmail.com', '1234')
-        return HttpResponse("Admin creado")
-    return HttpResponse("Ya existe")
+    try:
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@gmail.com', '1234')
+            return HttpResponse("Admin creado")
+        else:
+            return HttpResponse("El admin ya existe")
+    except Exception as e:
+        return HttpResponse(f"Error: {e}")
 def lista_productos(request):
     busqueda = request.GET.get('buscar', '')
 

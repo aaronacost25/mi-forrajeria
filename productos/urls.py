@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import filtrar_subcategoria, lista_productos
 from productos import views
+from .views import crear_admin
 
 urlpatterns = [
     path('', lista_productos, name='lista_productos'),

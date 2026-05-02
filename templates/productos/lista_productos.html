@@ -247,6 +247,7 @@ input{
     scroll-behavior:smooth;
 ">
     {% for producto in destacados %}
+    <a href="{% url 'detalle_producto' producto.id %}" style="text-decoration:none; color:inherit;">
     <div class="card">
 
         <img src="{{ producto.imagen.url }}" alt="">
